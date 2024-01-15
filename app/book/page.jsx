@@ -112,6 +112,7 @@ const Book = () => {
                 aria-label={`dropdown-choose-phone-${index}`}
                 items={phoneData}
                 onAction={(key) => handlePhoneSelection(index, key)}
+                className="h-[50vh] overflow-auto"
               >
                 {(item) => (
                   <DropdownItem key={item.id}>{item.name}</DropdownItem>
@@ -132,6 +133,7 @@ const Book = () => {
                 aria-label={`dropdown-choose-repair-type-${index}`}
                 items={correspondingRepairTypeData[index]}
                 onAction={(key) => handleRepairTypeSelection(index, key)}
+                className="h-[33vh] overflow-auto"
               >
                 {(item) => (
                   <DropdownItem key={item.repair_id}>
@@ -165,11 +167,7 @@ const Book = () => {
       {/* STEP 3 ----------------------------------------------------------- */} 
       <section className="w-1/2">
         <h1 className="text-2xl font-bold mt-6 mb-3">Step 3. Address</h1>
-        <div className="flex gap-3 mb-3">
-          <Input isRequired type="text" label="First Name" />
-          <Input isRequired type="text" label="Last Name" />
-        </div>
-        <Input isRequired type="text" label="Address" />
+        <Input isRequired type="text" label="Last Name" className="mb-3"/>
       </section>
     </div>
   );
