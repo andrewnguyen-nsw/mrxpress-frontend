@@ -49,22 +49,22 @@ const PhoneSelection = ({ updateRepairs }) => {
     newPhones.splice(index, 1);
     newRepairTypes.splice(index, 1);
     setSelectedPhones(newPhones);
-		console.log(newPhones);
+    console.log(newPhones);
     setSelectedRepairTypes(newRepairTypes);
-		updateRepairs(newPhones, newRepairTypes);
+    updateRepairs(newPhones, newRepairTypes);
   };
 
-	// Function to update the selected phone and repair type
-	//   const updateSelection = (index, phoneId, repairTypeId) => {
-	//     let newPhones = [...selectedPhones];
-	//     let newRepairTypes = [...selectedRepairTypes];
-	//     newPhones[index] = phoneData.find((p) => p.id === parseInt(phoneId));
-	//     newRepairTypes[index] = repairTypeData.find(
-	//       (r) => r.id === parseInt(repairTypeId)
-	//     );
-	//     setSelectedPhones(newPhones);
-	//     setSelectedRepairTypes(newRepairTypes);
-	//   };
+  // Function to update the selected phone and repair type
+  //   const updateSelection = (index, phoneId, repairTypeId) => {
+  //     let newPhones = [...selectedPhones];
+  //     let newRepairTypes = [...selectedRepairTypes];
+  //     newPhones[index] = phoneData.find((p) => p.id === parseInt(phoneId));
+  //     newRepairTypes[index] = repairTypeData.find(
+  //       (r) => r.id === parseInt(repairTypeId)
+  //     );
+  //     setSelectedPhones(newPhones);
+  //     setSelectedRepairTypes(newRepairTypes);
+  //   };
 
   const handlePhoneSelection = (index, key) => {
     const newPhones = [...selectedPhones];
@@ -74,6 +74,7 @@ const PhoneSelection = ({ updateRepairs }) => {
     const newCorrespondingRepairTypeData = [...correspondingRepairTypeData];
     newCorrespondingRepairTypeData[index] = repairTypeData[key];
     setCorrespondingRepairTypeData(newCorrespondingRepairTypeData);
+    console.log(newCorrespondingRepairTypeData);
 
     // Reset the corresponding repair type selection when phone changes
     const newRepairTypes = [...selectedRepairTypes];
@@ -97,10 +98,10 @@ const PhoneSelection = ({ updateRepairs }) => {
 
   return (
     <section>
-      <h1 className="text-2xl font-bold mb-3">Step 1. Repair Information</h1>
+      <h1 className="text-2xl font-bold mb-4">Repair Information</h1>
 
       {selectedPhones.map((selectedPhone, index) => (
-        <div key={index} className="flex items-center gap-3 mb-3">
+        <div key={index} className="flex items-center gap-3 mb-4">
           {/* Phone Dropdown */}
           <Dropdown shouldBlockScroll={false}>
             <DropdownTrigger>
@@ -131,7 +132,11 @@ const PhoneSelection = ({ updateRepairs }) => {
             </DropdownTrigger>
             <DropdownMenu
               aria-label={`dropdown-choose-repair-type-${index}`}
-              items={correspondingRepairTypeData[index]}
+              items={
+                correspondingRepairTypeData[0] !== undefined
+                  ? correspondingRepairTypeData[index]
+                  : []
+              }
               onAction={(key) => handleRepairTypeSelection(index, key)}
               className="h-[33vh] overflow-auto"
             >
@@ -154,12 +159,14 @@ const PhoneSelection = ({ updateRepairs }) => {
         </div>
       ))}
 
-      <Button onClick={addPhoneSelection} radius="full" color="danger" size="sm" className="text-sm">
+      <Button
+        onClick={addPhoneSelection}
+        radius="full"
+        color="danger"
+        size="sm"
+        className="text-sm"
+      >
         Add
-      </Button>
-
-      <Button onClick={() => handleSubmit(selectedPhones, selectedRepairTypes)}>
-        Submit
       </Button>
     </section>
   );
