@@ -1,35 +1,26 @@
-import { Input } from "@nextui-org/react";
 import { useState, useEffect, useRef } from "react";
-
 import {
+  Input,
   Autocomplete,
-  AutocompleteSection,
-  AutocompleteItem
+  AutocompleteItem,
+  Button,
 } from "@nextui-org/react";
-
-// This key was created specifically for the demo in mui.com.
-// You need to create a new one for your application.
-const GOOGLE_MAPS_API_KEY = "AIzaSyCZEbpEMSOCnOea0Vu2i4BYofYYqsYVB9Q";
-
-const loadGoogleMapsScript = (callback) => {
-  const script = document.createElement("script");
-  script.src = `https://maps.googleapis.com/maps/api/js?key=${GOOGLE_MAPS_API_KEY}&libraries=places`;
-  script.async = true;
-  script.defer = true;
-  script.onload = () => callback(true);
-  document.body.appendChild(script);
-  console.log("🤑 Script loaded");
-};
+import { loadGoogleMapsScript } from "@services/repairService";
+import usePlacesAutocomplete from "@hooks/usePlacesAutocomplete";
 
 const AddressSelection = ({ bookingData, setBookingData }) => {
-  const [scriptLoaded, setScriptLoaded] = useState(false);
-  const addressRef = useRef(null);
-
   const [userFirstName, setUserFirstName] = useState("");
   const [userLastName, setUserLastName] = useState("");
   const [userAddress, setUserAddress] = useState("");
   const [isFirstNameTouched, setIsFirstNameTouched] = useState(false);
   const [isLastNameTouched, setIsLastNameTouched] = useState(false);
+  const [autocompleteService, setAutocompleteService] = useState(null);
+
+  const [scriptLoaded, setScriptLoaded] = useState(false);
+  const { suggestions, loading } = usePlacesAutocomplete(
+    autocompleteService,
+    userAddress
+  );
 
   useEffect(() => {
     loadGoogleMapsScript(setScriptLoaded);
@@ -37,32 +28,22 @@ const AddressSelection = ({ bookingData, setBookingData }) => {
 
   useEffect(() => {
     if (scriptLoaded) {
-      const autocomplete = new google.maps.places.Autocomplete(
-        addressRef.current
-      );
-      autocomplete.addListener("place_changed", () => {
-        const place = autocomplete.getPlace();
-        console.log(place);
-        if (!place) {
-          setUserAddress("");
-        } else {
-          setUserAddress(place.formatted_address);
-        }
-      });
-
-      return () => {
-        // Cleanup
-        google.maps.event.clearInstanceListeners(autocomplete);
-      };
+      setAutocompleteService(new google.maps.places.AutocompleteService());
     }
   }, [scriptLoaded]);
 
   const validateIsEmpty = (value) => {
-    if (value === "") {
-      return false;
-    }
-    return true;
-  }
+    return value.trim() !== "";
+  };
+
+  const handleSubmit = () => {
+    setBookingData({
+      ...bookingData,
+      firstName: userFirstName,
+      lastName: userLastName,
+      address: userAddress,
+    });
+  };
 
   return (
     <section className="w-2/3">
@@ -73,10 +54,19 @@ const AddressSelection = ({ bookingData, setBookingData }) => {
           type="text"
           label="First Name"
           className="mb-3"
-          value={userFirstName}
+          value={userFirstName === "" ? bookingData.firstName : userFirstName}
           onValueChange={setUserFirstName}
-          isInvalid={isFirstNameTouched && !validateIsEmpty(userFirstName)}
-          errorMessage={isFirstNameTouched && !validateIsEmpty(userFirstName) && "Please enter"}
+          isInvalid={
+            isFirstNameTouched &&
+            !validateIsEmpty(userFirstName) &&
+            !validateIsEmpty(bookingData.firstName)
+          }
+          errorMessage={
+            isFirstNameTouched &&
+            !validateIsEmpty(userFirstName) &&
+            !validateIsEmpty(bookingData.firstName) &&
+            "This field cannot be empty."
+          }
           onBlur={() => setIsFirstNameTouched(true)}
         />
         <Input
@@ -84,23 +74,45 @@ const AddressSelection = ({ bookingData, setBookingData }) => {
           type="text"
           label="Last Name"
           className="mb-3"
-          value={userLastName}
+          value={userLastName === "" ? bookingData.lastName : userLastName}
           onValueChange={setUserLastName}
-          isInvalid={isLastNameTouched && !validateIsEmpty(userLastName)}
-          errorMessage={isLastNameTouched && !validateIsEmpty(userLastName) && "Please enter"}
+          isInvalid={
+            isLastNameTouched &&
+            !validateIsEmpty(userLastName) &&
+            !validateIsEmpty(bookingData.lastName)
+          }
+          errorMessage={
+            isLastNameTouched &&
+            !validateIsEmpty(userLastName) &&
+            !validateIsEmpty(bookingData.lastName) &&
+            "This field cannot be empty."
+          }
           onBlur={() => setIsLastNameTouched(true)}
         />
       </div>
-      <Input
-        ref={addressRef}
-        isRequired
-        type="text"
+      <Autocomplete
         label="Address"
+        isRequired
         className="mb-3"
         value={userAddress}
         onValueChange={setUserAddress}
-        placeholder=""
-      />
+        onSelectionChange={setUserAddress}
+      >
+        {suggestions.length == 0 ? (
+          <AutocompleteItem label="No results found." />
+        ) : (
+          suggestions.map((suggestion) => (
+            <AutocompleteItem
+              key={suggestion.description}
+              value={suggestion.description}
+              aria-label={suggestion.description}
+            >
+              {suggestion.description}
+            </AutocompleteItem>
+          ))
+        )}
+      </Autocomplete>
+      <Button onPress={handleSubmit}>Save</Button>
     </section>
   );
 };

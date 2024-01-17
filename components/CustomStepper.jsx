@@ -54,7 +54,12 @@ const CustomStepper = () => {
           />
         );
       case 3:
-        return <ReviewOrder />;
+        return (
+          <ReviewOrder
+            bookingData={bookingData}
+            setBookingData={setBookingData}
+          />
+        );
       case 4:
         return <PaymentDetails />;
       default:

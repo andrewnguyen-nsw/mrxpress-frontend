@@ -27,3 +27,13 @@ export const fetchAccessoriesData = async () => {
     console.error("Error fetching accessories data:", error);
   }
 };
+
+export const loadGoogleMapsScript = (callback) => {
+  const script = document.createElement("script");
+  script.src = `https://maps.googleapis.com/maps/api/js?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}&libraries=places`;
+  script.async = true;
+  script.defer = true;
+  script.onload = () => callback(true);
+  document.body.appendChild(script);
+  console.log("🤑 Script loaded");
+};
