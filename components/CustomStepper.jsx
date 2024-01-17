@@ -9,32 +9,6 @@ import AccessoriesSelection from "./booking-process/AccessoriesSelection";
 import PaymentDetails from "./booking-process/PaymentDetails";
 
 const CustomStepper = () => {
-  const [activeStep, setActiveStep] = useState(0);
-  const steps = [
-    { label: "Repair Information" },
-    { label: "Select Accessories" },
-    { label: "Repair Address" },
-    { label: "Review Order" },
-    { label: "Payment Details" },
-  ];
-
-  function getSectionComponent() {
-    switch (activeStep) {
-      case 0:
-        return <PhoneSelection updateRepairs={updateRepairs} />;
-      case 1:
-        return <AccessoriesSelection />;
-      case 2:
-        return <AddressSelection />;
-      case 3:
-        return <ReviewOrder />;
-      case 4:
-        return <PaymentDetails />;
-      default:
-        return null;
-    }
-  }
-
   // Centralized bookingData state
   const [bookingData, setBookingData] = useState({
     repairs: [],
@@ -47,21 +21,46 @@ const CustomStepper = () => {
     imgs: [],
   });
 
-  // Add/update repair in the bookingData
-  const updateRepairs = (selectedPhones, selectedRepairTypes) => {
-    let newRepairs = [];
+  const [activeStep, setActiveStep] = useState(2);
+  const steps = [
+    { label: "Repair Information" },
+    { label: "Select Accessories" },
+    { label: "Repair Address" },
+    { label: "Review Order" },
+    { label: "Payment Details" },
+  ];
 
-    if (selectedPhones[0] != null) {
-      // Check if there is any phone selected
-      newRepairs = selectedPhones.map((phone, index) => ({
-        id: index + 1,
-        phoneType: phone.id,
-        repairType: selectedRepairTypes[index]?.repair_id,
-      }));
+  function getSectionComponent() {
+    switch (activeStep) {
+      case 0:
+        return (
+          <PhoneSelection
+            bookingData={bookingData}
+            setBookingData={setBookingData}
+          />
+        );
+      case 1:
+        return (
+          <AccessoriesSelection
+            bookingData={bookingData}
+            setBookingData={setBookingData}
+          />
+        );
+      case 2:
+        return (
+          <AddressSelection
+            bookingData={bookingData}
+            setBookingData={setBookingData}
+          />
+        );
+      case 3:
+        return <ReviewOrder />;
+      case 4:
+        return <PaymentDetails />;
+      default:
+        return null;
     }
-    setBookingData({ ...bookingData, repairs: newRepairs });
-    console.log({ ...bookingData, repairs: newRepairs });
-  };
+  }
 
   return (
     <>

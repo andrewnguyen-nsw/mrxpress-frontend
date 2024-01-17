@@ -6,12 +6,12 @@ import {
   DropdownItem,
   Button,
 } from "@nextui-org/react";
-import { IconPlus, IconTrash } from "@tabler/icons-react";
+import { IconTrash } from "@tabler/icons-react";
 import { fetchPhoneRepairData } from "@services/repairService";
 import { stripHtmlAndEntities } from "@utils/stripHtmlAndEntities";
 import { decodeHtmlEntity } from "@utils/decodeHtmlEntity";
 
-const PhoneSelection = ({ updateRepairs }) => {
+const PhoneSelection = ({ bookingData, setBookingData }) => {
   const [phoneData, setPhoneData] = useState([]);
   const [selectedPhones, setSelectedPhones] = useState([null]);
   const [correspondingRepairTypeData, setCorrespondingRepairTypeData] =
@@ -54,18 +54,6 @@ const PhoneSelection = ({ updateRepairs }) => {
     updateRepairs(newPhones, newRepairTypes);
   };
 
-  // Function to update the selected phone and repair type
-  //   const updateSelection = (index, phoneId, repairTypeId) => {
-  //     let newPhones = [...selectedPhones];
-  //     let newRepairTypes = [...selectedRepairTypes];
-  //     newPhones[index] = phoneData.find((p) => p.id === parseInt(phoneId));
-  //     newRepairTypes[index] = repairTypeData.find(
-  //       (r) => r.id === parseInt(repairTypeId)
-  //     );
-  //     setSelectedPhones(newPhones);
-  //     setSelectedRepairTypes(newRepairTypes);
-  //   };
-
   const handlePhoneSelection = (index, key) => {
     const newPhones = [...selectedPhones];
     newPhones[index] = phoneData.find((item) => item.id === parseInt(key));
@@ -89,11 +77,23 @@ const PhoneSelection = ({ updateRepairs }) => {
     );
     setSelectedRepairTypes(newRepairTypes);
 
-    handleSubmit(selectedPhones, newRepairTypes);
+    updateRepairs(selectedPhones, newRepairTypes);
   };
 
-  const handleSubmit = (selectedPhones, selectedRepairTypes) => {
-    updateRepairs(selectedPhones, selectedRepairTypes);
+  // Add/update repair in the bookingData
+  const updateRepairs = (selectedPhones, selectedRepairTypes) => {
+    let newRepairs = [];
+
+    if (selectedPhones[0] != null) {
+      // Check if there is any phone selected
+      newRepairs = selectedPhones.map((phone, index) => ({
+        id: index + 1,
+        phoneType: phone.id,
+        repairType: selectedRepairTypes[index]?.repair_id,
+      }));
+    }
+    setBookingData({ ...bookingData, repairs: newRepairs });
+    console.log({ ...bookingData, repairs: newRepairs });
   };
 
   return (
@@ -138,7 +138,7 @@ const PhoneSelection = ({ updateRepairs }) => {
                   : []
               }
               onAction={(key) => handleRepairTypeSelection(index, key)}
-              className="h-[33vh] overflow-auto"
+              className="max-h-[33vh] overflow-auto"
             >
               {(item) => (
                 <DropdownItem key={item.repair_id}>
