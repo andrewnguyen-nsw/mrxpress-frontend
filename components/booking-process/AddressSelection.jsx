@@ -9,9 +9,9 @@ import { loadGoogleMapsScript } from "@services/repairService";
 import usePlacesAutocomplete from "@hooks/usePlacesAutocomplete";
 
 const AddressSelection = ({ bookingData, setBookingData }) => {
-  const [userFirstName, setUserFirstName] = useState("");
-  const [userLastName, setUserLastName] = useState("");
-  const [userAddress, setUserAddress] = useState("");
+  const [userFirstName, setUserFirstName] = useState(bookingData.firstName);
+  const [userLastName, setUserLastName] = useState(bookingData.lastName);
+  const [userAddress, setUserAddress] = useState(bookingData.address);
   const [isFirstNameTouched, setIsFirstNameTouched] = useState(false);
   const [isLastNameTouched, setIsLastNameTouched] = useState(false);
   const [autocompleteService, setAutocompleteService] = useState(null);
@@ -45,6 +45,16 @@ const AddressSelection = ({ bookingData, setBookingData }) => {
     });
   };
 
+  const handleSelectionChange = (value) => {
+    setUserAddress(value);
+    setBookingData({
+      ...bookingData,
+      firstName: userFirstName,
+      lastName: userLastName,
+      address: value,
+    })
+  };
+
   return (
     <section className="w-2/3">
       <h1 className="text-2xl font-bold mb-4">Repair Address</h1>
@@ -54,7 +64,7 @@ const AddressSelection = ({ bookingData, setBookingData }) => {
           type="text"
           label="First Name"
           className="mb-3"
-          value={userFirstName === "" ? bookingData.firstName : userFirstName}
+          value={userFirstName}
           onValueChange={setUserFirstName}
           isInvalid={
             isFirstNameTouched &&
@@ -74,7 +84,7 @@ const AddressSelection = ({ bookingData, setBookingData }) => {
           type="text"
           label="Last Name"
           className="mb-3"
-          value={userLastName === "" ? bookingData.lastName : userLastName}
+          value={userLastName}
           onValueChange={setUserLastName}
           isInvalid={
             isLastNameTouched &&
@@ -95,8 +105,9 @@ const AddressSelection = ({ bookingData, setBookingData }) => {
         isRequired
         className="mb-3"
         value={userAddress}
+        placeholder={userAddress === "" ? bookingData.address : userAddress}
         onValueChange={setUserAddress}
-        onSelectionChange={setUserAddress}
+        onSelectionChange={handleSelectionChange}
       >
         {suggestions.length == 0 ? (
           <AutocompleteItem label="No results found." />

@@ -37,3 +37,25 @@ export const loadGoogleMapsScript = (callback) => {
   document.body.appendChild(script);
   console.log("🤑 Script loaded");
 };
+
+export const fetchCheckoutReviewData = async (bookingData, promoCode) => {
+  try {
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/customer/checkoutList`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ ...bookingData, promoCode: promoCode }),
+      }
+    );
+    if (!response.ok) {
+      throw new Error("Network response error");
+    }
+    const { data } = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error fetching checkout review data:", error);
+  }
+};

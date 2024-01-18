@@ -21,7 +21,7 @@ const CustomStepper = () => {
     imgs: [],
   });
 
-  const [activeStep, setActiveStep] = useState(2);
+  const [activeStep, setActiveStep] = useState(0);
   const steps = [
     { label: "Repair Information" },
     { label: "Select Accessories" },

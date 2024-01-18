@@ -1,11 +1,115 @@
-import React from 'react'
+import { Button, Divider, Input, Spinner } from "@nextui-org/react";
+import { fetchCheckoutReviewData } from "@services/repairService";
+import { IconReceipt2, IconDiscount2 } from "@tabler/icons-react";
+import { useEffect, useState } from "react";
 
 const ReviewOrder = ({ bookingData, setBookingData }) => {
   console.log(bookingData);
+  const { repairs, cart } = bookingData;
+  const { firstName, lastName, address } = bookingData;
+  const [reviewData, setReviewData] = useState();
+  const [promoCode, setPromoCode] = useState("");
+
+  const fetchData = async (bookingData, promoCode = "") => {
+    try {
+      const data = await fetchCheckoutReviewData(bookingData, promoCode);
+      setReviewData(data);
+    } catch (error) {
+      console.log("Error fetching data: ", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchData(bookingData, promoCode);
+  }, [bookingData, promoCode]);
+
+  console.log(reviewData);
+
   return (
-    <h1 className="text-2xl font-bold mb-4">Review Order</h1>
+    <section>
+      <h1 className="text-2xl font-bold mb-4">Review Order</h1>
+      {!reviewData ? (
+        <Spinner className="pt-3 pl-6" />
+      ) : (
+        <div className="grid grid-cols-12 gap-10">
+          <div className="col-span-12 md:col-span-8">
+            {reviewData.repairInfo.map((repair, index) => (
+              <>
+                <div
+                  key={index}
+                  className="flex items-center justify-between mt-3 mb-3"
+                >
+                  <div className="flex flex-col">
+                    <p className="text-xs font-medium uppercase text-gray-600">
+                      {repair.phone_name}
+                    </p>
+                    <p className="">{repair.repair_name}</p>
+                  </div>
+                  <div>${repair.price}</div>
+                </div>
+                <Divider />
+              </>
+            ))}
+            {reviewData.productList.map((product, index) => (
+              <>
+                <div
+                  key={index}
+                  className="flex items-center justify-between mt-3 mb-3"
+                >
+                  <p>
+                    {product.quantity} x {product.name} (${product.price} each)
+                  </p>
+                  <div>${reviewData.productPrice}</div>
+                </div>
+                <Divider />
+              </>
+            ))}
+            <div className="flex items-center justify-between mt-3 mb-3">
+              <div className="flex items-center gap-2">
+                <IconReceipt2 stroke={1.5} />
+                <p className="font-medium">Subtotal</p>
+              </div>
+              <div className="font-medium">${reviewData?.originTotal}</div>
+            </div>
+            <div className="flex items-center justify-between mt-5 mb-3">
+              <div className="flex items-center gap-2">
+                <p className="">Discount [add ribbon]</p>
+              </div>
+              <div className=""> - ${reviewData.repairReduced}</div>
+            </div>
+            <div className="flex items-center justify-between mt-5 mb-3">
+              <div className="flex items-center gap-2">
+                <p className="font-semibold text-lg">Total</p>
+              </div>
+              <div className="font-semibold text-lg bg-[#fbe6e9] px-3 py-2 rounded-md">
+                ${reviewData?.finalTotal}
+              </div>
+            </div>
+          </div>
+          <div className="col-span-12 md:col-span-4 flex">
+            <Input
+              placeholder="Promo Code"
+              size="sm"
+              onValueChange={setPromoCode}
+              startContent={
+                <IconDiscount2 stroke={1.5} className="text-gray-700" />
+              }
+              endContent={
+                <Button
+                  className=""
+                  size="sm"
+                  variant="solid"
+                  onPress={() => fetchData(bookingData, promoCode)}
+                >
+                  Apply
+                </Button>
+              }
+            />
+          </div>
+        </div>
+      )}
+    </section>
+  );
+};
 
-  )
-}
-
-export default ReviewOrder
+export default ReviewOrder;
