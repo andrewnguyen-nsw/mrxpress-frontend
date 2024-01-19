@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { fetchAccessoriesData } from "@services/repairService";
+import { fetchAccessoriesData } from "@services/bookingService";
 import { Card, CardHeader, CardBody, Image } from "@nextui-org/react";
 import { IconShoppingCartPlus, IconPlus, IconMinus } from "@tabler/icons-react";
 

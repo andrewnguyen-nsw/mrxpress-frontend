@@ -1,5 +1,8 @@
 import { Button, Divider, Input, Spinner } from "@nextui-org/react";
-import { fetchCheckoutReviewData } from "@services/repairService";
+import {
+  checkPromoCode,
+  fetchCheckoutReviewData,
+} from "@services/bookingService";
 import { IconReceipt2, IconDiscount2 } from "@tabler/icons-react";
 import { useEffect, useState } from "react";
 
@@ -9,6 +12,7 @@ const ReviewOrder = ({ bookingData, setBookingData }) => {
   const { firstName, lastName, address } = bookingData;
   const [reviewData, setReviewData] = useState();
   const [promoCode, setPromoCode] = useState("");
+  const [codeStatus, setCodeStatus] = useState({});
 
   const fetchData = async (bookingData, promoCode = "") => {
     try {
@@ -21,7 +25,36 @@ const ReviewOrder = ({ bookingData, setBookingData }) => {
 
   useEffect(() => {
     fetchData(bookingData, promoCode);
-  }, [bookingData, promoCode]);
+  }, [bookingData]);
+
+  const isPromoCodeValid = async (promoCode) => {
+    try {
+      const data = await checkPromoCode(promoCode);
+      if (data === "success") {
+        await fetchData(bookingData, promoCode);
+        setCodeStatus({
+          isValid: true,
+          msg: "Promo code applied successfully.",
+        });
+      } else {
+        await fetchData(bookingData);
+        setCodeStatus({
+          isValid: false,
+          msg: "Invalid promo code.",
+        });
+      }
+    } catch (error) {
+      console.log("Error checking promo code: ", error);
+    }
+  };
+
+  const handleApplyPromoCode = async () => {
+    try {
+      await isPromoCodeValid(promoCode);
+    } catch (error) {
+      console.error("Error applying promo code:", error);
+    }
+  };
 
   console.log(reviewData);
 
@@ -86,7 +119,7 @@ const ReviewOrder = ({ bookingData, setBookingData }) => {
               </div>
             </div>
           </div>
-          <div className="col-span-12 md:col-span-4 flex">
+          <div className="col-span-12 md:col-span-4 flex flex-col gap-3">
             <Input
               placeholder="Promo Code"
               size="sm"
@@ -99,12 +132,19 @@ const ReviewOrder = ({ bookingData, setBookingData }) => {
                   className=""
                   size="sm"
                   variant="solid"
-                  onPress={() => fetchData(bookingData, promoCode)}
+                  onPress={() => isPromoCodeValid(promoCode)}
                 >
                   Apply
                 </Button>
               }
             />
+            <p
+              className={`text-sm ${
+                codeStatus.isValid ? "text-green-600" : "text-red-800"
+              }`}
+            >
+              {codeStatus.msg}
+            </p>
           </div>
         </div>
       )}

@@ -1,12 +1,11 @@
 import { useState } from "react";
-
 import { Stepper } from "react-form-stepper";
+import { Button } from "@nextui-org/react";
 import PhoneSelection from "@components/booking-process/PhoneSelection";
 import AddressSelection from "@components/booking-process/AddressSelection";
-import { Button } from "@nextui-org/react";
-import ReviewOrder from "./booking-process/ReviewOrder";
-import AccessoriesSelection from "./booking-process/AccessoriesSelection";
-import PaymentDetails from "./booking-process/PaymentDetails";
+import ReviewOrder from "@components/booking-process/ReviewOrder";
+import AccessoriesSelection from "@components/booking-process/AccessoriesSelection";
+import PaymentDetails from "@components/booking-process/PaymentDetails";
 
 const CustomStepper = () => {
   // Centralized bookingData state

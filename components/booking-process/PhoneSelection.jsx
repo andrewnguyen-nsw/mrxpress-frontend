@@ -7,7 +7,7 @@ import {
   Button,
 } from "@nextui-org/react";
 import { IconTrash } from "@tabler/icons-react";
-import { fetchPhoneRepairData } from "@services/repairService";
+import { fetchPhoneRepairData } from "@services/bookingService";
 import { stripHtmlAndEntities } from "@utils/stripHtmlAndEntities";
 import { decodeHtmlEntity } from "@utils/decodeHtmlEntity";
 

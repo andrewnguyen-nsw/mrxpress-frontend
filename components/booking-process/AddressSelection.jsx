@@ -1,11 +1,11 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import {
   Input,
   Autocomplete,
   AutocompleteItem,
   Button,
 } from "@nextui-org/react";
-import { loadGoogleMapsScript } from "@services/repairService";
+import { loadGoogleMapsScript } from "@services/bookingService";
 import usePlacesAutocomplete from "@hooks/usePlacesAutocomplete";
 
 const AddressSelection = ({ bookingData, setBookingData }) => {

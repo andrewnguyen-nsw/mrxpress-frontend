@@ -59,3 +59,24 @@ export const fetchCheckoutReviewData = async (bookingData, promoCode) => {
     console.error("Error fetching checkout review data:", error);
   }
 };
+
+export const checkPromoCode = async (promoCode) => {
+  try {
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/customer/checkPromoCode?promoCode=${encodeURIComponent(promoCode)}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    if (!response.ok) {
+      throw new Error("Network response error");
+    }
+    const { msg } = await response.json();
+    return msg;
+  } catch (error) {
+    console.error("Error checking promo code:", error);
+  }
+};
