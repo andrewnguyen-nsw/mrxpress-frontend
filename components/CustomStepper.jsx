@@ -56,7 +56,6 @@ const CustomStepper = () => {
         return (
           <ReviewOrder
             bookingData={bookingData}
-            setBookingData={setBookingData}
           />
         );
       case 4:

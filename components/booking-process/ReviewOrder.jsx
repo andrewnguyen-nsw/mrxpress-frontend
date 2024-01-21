@@ -1,14 +1,13 @@
+import { useEffect, useState } from "react";
 import { Button, Divider, Input, Spinner } from "@nextui-org/react";
+import { IconReceipt2, IconDiscount2 } from "@tabler/icons-react";
 import {
   checkPromoCode,
   fetchCheckoutReviewData,
 } from "@services/bookingService";
-import { IconReceipt2, IconDiscount2 } from "@tabler/icons-react";
-import { useEffect, useState } from "react";
+import { triggerConfetti } from "@utils/triggerConfetti";
 
-const ReviewOrder = ({ bookingData, setBookingData }) => {
-  console.log(bookingData);
-  const { repairs, cart } = bookingData;
+const ReviewOrder = ({ bookingData }) => {
   const { firstName, lastName, address } = bookingData;
   const [reviewData, setReviewData] = useState();
   const [promoCode, setPromoCode] = useState("");
@@ -36,6 +35,7 @@ const ReviewOrder = ({ bookingData, setBookingData }) => {
           isValid: true,
           msg: "Promo code applied successfully.",
         });
+        triggerConfetti();
       } else {
         await fetchData(bookingData);
         setCodeStatus({
@@ -45,14 +45,6 @@ const ReviewOrder = ({ bookingData, setBookingData }) => {
       }
     } catch (error) {
       console.log("Error checking promo code: ", error);
-    }
-  };
-
-  const handleApplyPromoCode = async () => {
-    try {
-      await isPromoCodeValid(promoCode);
-    } catch (error) {
-      console.error("Error applying promo code:", error);
     }
   };
 
@@ -104,12 +96,14 @@ const ReviewOrder = ({ bookingData, setBookingData }) => {
               </div>
               <div className="font-medium">${reviewData?.originTotal}</div>
             </div>
-            <div className="flex items-center justify-between mt-5 mb-3">
-              <div className="flex items-center gap-2">
-                <p className="">Discount [add ribbon]</p>
+            {reviewData.repairReduced > 0 && (
+              <div className="flex items-center justify-between mt-5 mb-3">
+                <div className="flex items-center gap-2">
+                  <p className="">Discount</p>
+                </div>
+                <div className=""> - ${reviewData.repairReduced}</div>
               </div>
-              <div className=""> - ${reviewData.repairReduced}</div>
-            </div>
+            )}
             <div className="flex items-center justify-between mt-5 mb-3">
               <div className="flex items-center gap-2">
                 <p className="font-semibold text-lg">Total</p>
@@ -148,6 +142,11 @@ const ReviewOrder = ({ bookingData, setBookingData }) => {
           </div>
         </div>
       )}
+      <div>
+        <p className="text-xl font-bold mt-4 mb-2">Address</p>
+        <p>{bookingData.firstName} {bookingData.lastName}</p>
+        <p>{bookingData.address}</p>
+      </div>
     </section>
   );
 };

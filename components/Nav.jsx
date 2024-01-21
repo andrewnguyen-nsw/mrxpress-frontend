@@ -75,7 +75,7 @@ const Nav = () => {
 
       <NavbarContent justify="end">
         <NavbarItem className="hidden lg:flex">
-          <Link className='text-copy' href="#">Login</Link>
+          <Link className='text-copy' href="/login">Login</Link>
         </NavbarItem>
         <NavbarItem>
           <Button as={Link} className='px-5 leading-none' radius='full' color='primary' href="#" variant="solid">

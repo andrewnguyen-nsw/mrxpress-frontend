@@ -5,8 +5,9 @@ import {
   AutocompleteItem,
   Button,
 } from "@nextui-org/react";
-import { loadGoogleMapsScript } from "@services/bookingService";
 import usePlacesAutocomplete from "@hooks/usePlacesAutocomplete";
+import { loadGoogleMapsScript } from "@services/bookingService";
+import { validateRequired } from "@utils/formValidation";
 
 const AddressSelection = ({ bookingData, setBookingData }) => {
   const [userFirstName, setUserFirstName] = useState(bookingData.firstName);
@@ -31,10 +32,6 @@ const AddressSelection = ({ bookingData, setBookingData }) => {
       setAutocompleteService(new google.maps.places.AutocompleteService());
     }
   }, [scriptLoaded]);
-
-  const validateIsEmpty = (value) => {
-    return value.trim() !== "";
-  };
 
   const handleSubmit = () => {
     setBookingData({
@@ -68,13 +65,13 @@ const AddressSelection = ({ bookingData, setBookingData }) => {
           onValueChange={setUserFirstName}
           isInvalid={
             isFirstNameTouched &&
-            !validateIsEmpty(userFirstName) &&
-            !validateIsEmpty(bookingData.firstName)
+            !validateRequired(userFirstName) &&
+            !validateRequired(bookingData.firstName)
           }
           errorMessage={
             isFirstNameTouched &&
-            !validateIsEmpty(userFirstName) &&
-            !validateIsEmpty(bookingData.firstName) &&
+            !validateRequired(userFirstName) &&
+            !validateRequired(bookingData.firstName) &&
             "This field cannot be empty."
           }
           onBlur={() => setIsFirstNameTouched(true)}
@@ -88,13 +85,13 @@ const AddressSelection = ({ bookingData, setBookingData }) => {
           onValueChange={setUserLastName}
           isInvalid={
             isLastNameTouched &&
-            !validateIsEmpty(userLastName) &&
-            !validateIsEmpty(bookingData.lastName)
+            !validateRequired(userLastName) &&
+            !validateRequired(bookingData.lastName)
           }
           errorMessage={
             isLastNameTouched &&
-            !validateIsEmpty(userLastName) &&
-            !validateIsEmpty(bookingData.lastName) &&
+            !validateRequired(userLastName) &&
+            !validateRequired(bookingData.lastName) &&
             "This field cannot be empty."
           }
           onBlur={() => setIsLastNameTouched(true)}
