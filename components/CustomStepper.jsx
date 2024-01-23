@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Stepper } from "react-form-stepper";
 import { Button } from "@nextui-org/react";
+import { useSnackbar } from "notistack";
 import PhoneSelection from "@components/booking-process/PhoneSelection";
 import AddressSelection from "@components/booking-process/AddressSelection";
 import ReviewOrder from "@components/booking-process/ReviewOrder";
@@ -28,6 +29,23 @@ const CustomStepper = () => {
     { label: "Review Order" },
     { label: "Payment Details" },
   ];
+  const { enqueueSnackbar } = useSnackbar();
+
+  const handleNextClick = () => {
+    if (activeStep === 0) {
+      if (bookingData.repairs.length === 0) {
+        enqueueSnackbar("Please select at least one repair.", {variant: "error"});
+        return;
+      }
+    }
+    if (activeStep === 2) {
+      if (bookingData.firstName === "" || bookingData.lastName === "" || bookingData.address === "") {
+        enqueueSnackbar("Please fill in all fields.", {variant: "error"});
+        return;
+      }
+    }
+    setActiveStep(activeStep + 1)
+  }
 
   function getSectionComponent() {
     switch (activeStep) {
@@ -91,7 +109,7 @@ const CustomStepper = () => {
       <div>
         {getSectionComponent()}
 
-        <div className="mt-5 flex gap-3 float-right">
+        <div className="mt-5 flex gap-3 justify-end">
           {activeStep !== 0 && (
             <Button
               variant="bordered"
@@ -104,7 +122,7 @@ const CustomStepper = () => {
           {activeStep !== steps.length - 1 && (
             <Button
               color="primary"
-              onClick={() => setActiveStep(activeStep + 1)}
+              onClick={handleNextClick}
             >
               Next
             </Button>

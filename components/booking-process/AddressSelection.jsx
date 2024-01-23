@@ -120,7 +120,6 @@ const AddressSelection = ({ bookingData, setBookingData }) => {
           ))
         )}
       </Autocomplete>
-      <Button onPress={handleSubmit}>Save</Button>
     </section>
   );
 };

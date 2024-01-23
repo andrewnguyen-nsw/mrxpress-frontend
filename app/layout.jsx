@@ -18,7 +18,9 @@ export default function RootLayout({ children }) {
         <Providers>
           <div className="site-wrapper">
             <Nav />
-            {children}
+            <main className="content-wrapper">
+              {children}
+            </main>
             <Footer />
           </div>
         </Providers>
