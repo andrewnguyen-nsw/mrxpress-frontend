@@ -7,24 +7,33 @@ import {
   Image,
 } from '@nextui-org/react';
 import { fetchPhoneRepairData } from '@services/bookingService';
-import { IconTrash } from '@tabler/icons-react';
-import { decodeHtmlEntity } from '@utils/decodeHtmlEntity';
-import { stripHtmlAndEntities } from '@utils/stripHtmlAndEntities';
 import { useEffect, useState } from 'react';
 
 const PhoneSelection = ({ bookingData, setBookingData }) => {
   const [phoneData, setPhoneData] = useState([]);
-  const [selectedPhone, setSelectedPhone] = useState(null);
   const [correspondingRepairTypeData, setCorrespondingRepairTypeData] =
-    useState([]);
+    useState(bookingData.repairs[0]?.correspondingRepairTypeData);
   const [repairTypeData, setRepairTypeData] = useState([]);
-  const [selectedRepairType, setSelectedRepairType] = useState([]);
+  const [selectedRepairType, setSelectedRepairType] = useState(
+    bookingData.repairs[0]?.selectedRepairType
+  );
 
-  const [brandList, setBrandList] = useState([]);
-  const [selectedBrand, setSelectedBrand] = useState(null);
-  const [seriesList, setSeriesList] = useState([]);
-  const [selectedSeries, setSelectedSeries] = useState(null);
-  const [modelList, setModelList] = useState([]);
+  const [brandList, setBrandList] = useState(
+    bookingData.repairs[0]?.brandList || []
+  );
+  const [selectedBrand, setSelectedBrand] = useState(
+    bookingData.repairs[0]?.selectedBrand
+  );
+  const [seriesList, setSeriesList] = useState(
+    bookingData.repairs[0]?.seriesList
+  );
+  const [selectedSeries, setSelectedSeries] = useState(
+    bookingData.repairs[0]?.selectedSeries
+  );
+  const [modelList, setModelList] = useState(bookingData.repairs[0]?.modelList);
+  const [selectedPhone, setSelectedPhone] = useState(
+    bookingData.repairs[0]?.selectedPhone
+  );
 
   useEffect(() => {
     const fetchData = async () => {
@@ -112,12 +121,18 @@ const PhoneSelection = ({ bookingData, setBookingData }) => {
           id: 0,
           phoneType: selectedPhone.id,
           repairType: repairId,
+          brandList,
+          selectedBrand,
+          seriesList,
+          selectedSeries,
+          modelList,
+          selectedPhone,
+          selectedRepairType: repairId,
+          correspondingRepairTypeData,
         },
       ],
     });
   };
-
-  console.log(bookingData);
 
   return (
     <section>
@@ -148,11 +163,15 @@ const PhoneSelection = ({ bookingData, setBookingData }) => {
         <div className='mt-4 flex justify-center gap-3'>
           <Dropdown>
             <DropdownTrigger
-              className={selectedSeries?.name ? `px-12 py-6` : `px-4 py-6`}
+              className={
+                selectedSeries?.name
+                  ? `px-12 py-6 bg-red-400`
+                  : `px-4 py-6 bg-transparent`
+              }
             >
               <Button
                 variant={selectedSeries?.name ? `solid` : `bordered`}
-                className='text-copy'
+                className={selectedSeries?.name ? `text-white` : `text-copy`}
               >
                 {selectedSeries?.name || `Choose Your Series`}
               </Button>
@@ -167,11 +186,15 @@ const PhoneSelection = ({ bookingData, setBookingData }) => {
           </Dropdown>
           <Dropdown>
             <DropdownTrigger
-              className={selectedPhone?.name ? `px-12 py-6` : `px-4 py-6`}
+              className={
+                selectedPhone?.name
+                  ? `px-12 py-6 bg-red-400`
+                  : `px-4 py-6 bg-transparent`
+              }
             >
               <Button
                 variant={selectedPhone?.name ? `solid` : `bordered`}
-                className='text-copy'
+                className={selectedPhone?.name ? `text-white` : `text-copy`}
               >
                 {selectedPhone?.name || `Choose Your Phone`}
               </Button>
