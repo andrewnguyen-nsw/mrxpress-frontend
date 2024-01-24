@@ -34,7 +34,7 @@ const CustomStepper = () => {
   const handleNextClick = () => {
     if (activeStep === 0) {
       if (bookingData.repairs.length === 0) {
-        enqueueSnackbar("Please select at least one repair.", {variant: "error"});
+        enqueueSnackbar("Please select your repair before continuing.", {variant: "error"});
         return;
       }
     }

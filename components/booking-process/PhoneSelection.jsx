@@ -1,173 +1,209 @@
-import { useState, useEffect } from "react";
 import {
-  Dropdown,
-  DropdownTrigger,
-  DropdownMenu,
-  DropdownItem,
   Button,
-} from "@nextui-org/react";
-import { IconTrash } from "@tabler/icons-react";
-import { fetchPhoneRepairData } from "@services/bookingService";
-import { stripHtmlAndEntities } from "@utils/stripHtmlAndEntities";
-import { decodeHtmlEntity } from "@utils/decodeHtmlEntity";
+  Dropdown,
+  DropdownItem,
+  DropdownMenu,
+  DropdownTrigger,
+  Image,
+} from '@nextui-org/react';
+import { fetchPhoneRepairData } from '@services/bookingService';
+import { IconTrash } from '@tabler/icons-react';
+import { decodeHtmlEntity } from '@utils/decodeHtmlEntity';
+import { stripHtmlAndEntities } from '@utils/stripHtmlAndEntities';
+import { useEffect, useState } from 'react';
 
 const PhoneSelection = ({ bookingData, setBookingData }) => {
   const [phoneData, setPhoneData] = useState([]);
-  const [selectedPhones, setSelectedPhones] = useState([null]);
+  const [selectedPhone, setSelectedPhone] = useState(null);
   const [correspondingRepairTypeData, setCorrespondingRepairTypeData] =
     useState([]);
   const [repairTypeData, setRepairTypeData] = useState([]);
-  const [selectedRepairTypes, setSelectedRepairTypes] = useState([]);
+  const [selectedRepairType, setSelectedRepairType] = useState([]);
+
+  const [brandList, setBrandList] = useState([]);
+  const [selectedBrand, setSelectedBrand] = useState(null);
+  const [seriesList, setSeriesList] = useState([]);
+  const [selectedSeries, setSelectedSeries] = useState(null);
+  const [modelList, setModelList] = useState([]);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const data = await fetchPhoneRepairData();
-        const decodedData = data.phoneTypeArr.map((item) => ({
-          id: item.id,
-          name: decodeHtmlEntity(item.name), // replace &nbsp; with ' '
-        }));
-        setPhoneData(decodedData);
-        setRepairTypeData(data.repairType);
+        setPhoneData(data.phoneList);
+        console.log(data.phoneList);
+        setRepairTypeData(data.repairTypeList);
+        const brandArray = Object.keys(data.phoneList).map((key) => {
+          return {
+            id: parseInt(key),
+            name: data.phoneList[key].brandName,
+          };
+        });
+        setBrandList(brandArray);
       } catch (error) {
-        console.log("Error fetching data: ", error);
+        console.log('Error fetching data: ', error);
       }
     };
     fetchData();
   }, []);
 
-  // Function to handle adding a new phone selection
-  const addPhoneSelection = () => {
-    setSelectedPhones([...selectedPhones, null]); // Add a new null selection
-    setSelectedRepairTypes([...selectedRepairTypes, null]); // Corresponding repair type
-  };
+  const handleBrandSelection = (brandId) => {
+    setSelectedBrand(brandId);
 
-  // Function to handle removing a phone selection
-  const removePhoneSelection = (index) => {
-    const newPhones = [...selectedPhones];
-    const newRepairTypes = [...selectedRepairTypes];
-    newPhones.splice(index, 1);
-    newRepairTypes.splice(index, 1);
-    setSelectedPhones(newPhones);
-    console.log(newPhones);
-    setSelectedRepairTypes(newRepairTypes);
-    updateRepairs(newPhones, newRepairTypes);
-  };
-
-  const handlePhoneSelection = (index, key) => {
-    const newPhones = [...selectedPhones];
-    newPhones[index] = phoneData.find((item) => item.id === parseInt(key));
-    setSelectedPhones(newPhones);
-
-    const newCorrespondingRepairTypeData = [...correspondingRepairTypeData];
-    newCorrespondingRepairTypeData[index] = repairTypeData[key];
-    setCorrespondingRepairTypeData(newCorrespondingRepairTypeData);
-    console.log(newCorrespondingRepairTypeData);
-
-    // Reset the corresponding repair type selection when phone changes
-    const newRepairTypes = [...selectedRepairTypes];
-    newRepairTypes[index] = null;
-    setSelectedRepairTypes(newRepairTypes);
-  };
-
-  const handleRepairTypeSelection = (index, key) => {
-    const newRepairTypes = [...selectedRepairTypes];
-    newRepairTypes[index] = correspondingRepairTypeData[index].find(
-      (item) => item.repair_id === parseInt(key)
+    const correspondingSeries = Object.keys(phoneData[brandId].series).map(
+      (key) => {
+        return {
+          id: parseInt(key),
+          name: phoneData[brandId].series[key].seriesName,
+        };
+      }
     );
-    setSelectedRepairTypes(newRepairTypes);
-
-    updateRepairs(selectedPhones, newRepairTypes);
+    setSeriesList(correspondingSeries);
+    setModelList([]);
+    setSelectedSeries(null);
+    setSelectedPhone(null);
+    setSelectedRepairType(null);
+    setBookingData({
+      ...bookingData,
+      repairs: [],
+    });
   };
 
-  // Add/update repair in the bookingData
-  const updateRepairs = (selectedPhones, selectedRepairTypes) => {
-    let newRepairs = [];
-
-    if (selectedPhones[0] != null) {
-      // Check if there is any phone selected
-      newRepairs = selectedPhones.map((phone, index) => ({
-        id: index + 1,
-        phoneType: phone.id,
-        repairType: selectedRepairTypes[index]?.repair_id,
-      }));
-    }
-    setBookingData({ ...bookingData, repairs: newRepairs });
-    console.log({ ...bookingData, repairs: newRepairs });
+  const handleSeriesSelection = (key) => {
+    setSelectedSeries({
+      id: key,
+      name: phoneData[selectedBrand].series[key].seriesName,
+    });
+    const seriesObj = phoneData[selectedBrand].series[key];
+    const modelArray = Object.keys(seriesObj.models).map((key) => {
+      return {
+        id: parseInt(key),
+        name: seriesObj.models[key].name,
+      };
+    });
+    setModelList(modelArray);
+    setSelectedPhone(null);
+    setSelectedRepairType(null);
+    setBookingData({
+      ...bookingData,
+      repairs: [],
+    });
   };
+
+  const handleModelSelection = (key) => {
+    setSelectedPhone({
+      id: parseInt(key),
+      name: phoneData[selectedBrand].series[selectedSeries.id].models[key].name,
+    });
+    setCorrespondingRepairTypeData(repairTypeData[key]);
+    setSelectedRepairType(null);
+    setBookingData({
+      ...bookingData,
+      repairs: [],
+    });
+  };
+
+  const handleRepairTypeSelection = (repairId) => {
+    setSelectedRepairType(repairId);
+    setBookingData({
+      ...bookingData,
+      repairs: [
+        {
+          id: 0,
+          phoneType: selectedPhone.id,
+          repairType: repairId,
+        },
+      ],
+    });
+  };
+
+  console.log(bookingData);
 
   return (
     <section>
-      <h1 className="text-2xl font-bold mb-4">Repair Information</h1>
-
-      {selectedPhones.map((selectedPhone, index) => (
-        <div key={index} className="flex items-center gap-3 mb-4">
-          {/* Phone Dropdown */}
-          <Dropdown shouldBlockScroll={false}>
-            <DropdownTrigger>
-              <Button variant="solid">
-                {!selectedPhone
-                  ? "Choose Phone"
-                  : stripHtmlAndEntities(selectedPhone.name)}
+      <h1 className='text-2xl font-semibold mb-4 text-center'>
+        Select Your Device
+      </h1>
+      <div className='flex flex-row justify-center gap-4'>
+        {brandList.map((brand) => (
+          <div
+            key={brand.id}
+            className={`flex flex-col gap-3 items-center px-8 py-6 rounded-lg border cursor-pointer ${selectedBrand === brand.id ? 'bg-red-400 text-white' : 'bg-gray-200 hover:border-red-400'}`}
+            onClick={() => handleBrandSelection(brand.id)}
+          >
+            <Image
+              alt='brands'
+              width={90}
+              src={
+                brand.name === 'Apple'
+                  ? `/assets/images/apple.webp`
+                  : `/assets/images/samsung.webp`
+              }
+            />
+            <p className='text-sm'>{brand.name}</p>
+          </div>
+        ))}
+      </div>
+      {selectedBrand && (
+        <div className='mt-4 flex justify-center gap-3'>
+          <Dropdown>
+            <DropdownTrigger
+              className={selectedSeries?.name ? `px-12 py-6` : `px-4 py-6`}
+            >
+              <Button
+                variant={selectedSeries?.name ? `solid` : `bordered`}
+                className='text-copy'
+              >
+                {selectedSeries?.name || `Choose Your Series`}
               </Button>
             </DropdownTrigger>
             <DropdownMenu
-              aria-label={`dropdown-choose-phone-${index}`}
-              items={phoneData}
-              onAction={(key) => handlePhoneSelection(index, key)}
-              className="h-[50vh] overflow-auto"
+              aria-label='Series selection'
+              onAction={(key) => handleSeriesSelection(key)}
+              items={seriesList}
             >
               {(item) => <DropdownItem key={item.id}>{item.name}</DropdownItem>}
             </DropdownMenu>
           </Dropdown>
-
-          {/* Repair Type Dropdown */}
-          <Dropdown shouldBlockScroll={false}>
-            <DropdownTrigger>
-              <Button variant="solid" isDisabled={!selectedPhone}>
-                {!selectedRepairTypes[index]
-                  ? "Choose Repair Type"
-                  : selectedRepairTypes[index].repair_name}
+          <Dropdown>
+            <DropdownTrigger
+              className={selectedPhone?.name ? `px-12 py-6` : `px-4 py-6`}
+            >
+              <Button
+                variant={selectedPhone?.name ? `solid` : `bordered`}
+                className='text-copy'
+              >
+                {selectedPhone?.name || `Choose Your Phone`}
               </Button>
             </DropdownTrigger>
             <DropdownMenu
-              aria-label={`dropdown-choose-repair-type-${index}`}
-              items={
-                correspondingRepairTypeData[0] !== undefined
-                  ? correspondingRepairTypeData[index]
-                  : []
-              }
-              onAction={(key) => handleRepairTypeSelection(index, key)}
-              className="max-h-[33vh] overflow-auto"
+              aria-label='Model selection'
+              onAction={(key) => handleModelSelection(key)}
+              items={modelList || []}
             >
-              {(item) => (
-                <DropdownItem key={item.repair_id}>
-                  {item.repair_name}
-                </DropdownItem>
-              )}
+              {(item) => <DropdownItem key={item.id}>{item.name}</DropdownItem>}
             </DropdownMenu>
           </Dropdown>
-
-          {/* Remove Button */}
-          {selectedPhones.length > 1 && (
-            <IconTrash
-              onClick={() => removePhoneSelection(index)}
-              size={16}
-              className="cursor-pointer"
-            />
-          )}
         </div>
-      ))}
-
-      <Button
-        onClick={addPhoneSelection}
-        radius="full"
-        color="danger"
-        size="sm"
-        className="text-sm"
-      >
-        Add
-      </Button>
+      )}
+      {selectedPhone && (
+        <>
+          <h1 className='text-2xl font-semibold mb-4 text-center mt-6'>
+            Select Repair Type
+          </h1>
+          <div className='flex flex-row gap-3 flex-wrap justify-center md:w-3/4 mx-auto'>
+            {correspondingRepairTypeData.map((repairType) => (
+              <div
+                key={repairType.repair_id}
+                className={`bg-gray-200 text-sm text-center flex items-center justify-center text-wrap border rounded-lg p-4 md:p-6 max-w-40 cursor-pointer ${selectedRepairType === repairType.repair_id ? 'bg-red-400 text-white' : 'bg-gray-200 hover:border-red-400'}`}
+                onClick={() => handleRepairTypeSelection(repairType.repair_id)}
+              >
+                {repairType.repair_name}
+              </div>
+            ))}
+          </div>
+        </>
+      )}
     </section>
   );
 };

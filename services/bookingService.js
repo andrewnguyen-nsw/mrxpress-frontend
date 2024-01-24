@@ -1,3 +1,22 @@
+import { stripHtmlAndEntities } from "@utils/stripHtmlAndEntities";
+
+function isBrand(name) {
+  const count = (name.match(/&nbsp;/g) || []).length;
+  return count === 2;
+}
+
+function isSeries(name) {
+  const count = (name.match(/&nbsp;/g) || []).length;
+  return count === 8;
+}
+
+function isModel(name) {
+  const count = (name.match(/&nbsp;/g) || []).length;
+  return count === 14;
+}
+
+// -------------------------------------------------------------------
+
 export const fetchPhoneRepairData = async () => {
   try {
     const response = await fetch(
@@ -7,7 +26,37 @@ export const fetchPhoneRepairData = async () => {
       throw new Error("Network response error");
     }
     const { data } = await response.json();
-    return data;
+    
+    const phoneList = data.phoneTypeArr;
+    const repairTypeList = data.repairType;
+    let hierarchy = {};
+    let nearestBrandId = null;
+    let nearestSeriesId = null;
+
+    phoneList.forEach((phone) => {
+      if (isBrand(phone.name)) {
+        hierarchy[phone.id] = {
+          brandName: stripHtmlAndEntities(phone.name),
+          series: {},
+        };
+        nearestBrandId = phone.id;
+      } else if (isSeries(phone.name)) {
+        hierarchy[nearestBrandId].series[phone.id] = {
+          seriesName: stripHtmlAndEntities(phone.name),
+          models: {},
+        };
+        nearestSeriesId = phone.id;
+      } else if (isModel(phone.name)) {
+        hierarchy[nearestBrandId].series[nearestSeriesId].models[phone.id] = {
+          name: stripHtmlAndEntities(phone.name),
+        };
+      }
+    });
+    
+    return {
+      phoneList: hierarchy,
+      repairTypeList,
+    };
   } catch (error) {
     console.error("Error fetching phone repair data:", error);
   }
