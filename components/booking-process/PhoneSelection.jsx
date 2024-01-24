@@ -1,3 +1,4 @@
+import { usePhoneData } from '@hooks/usePhoneData';
 import {
   Button,
   Dropdown,
@@ -6,21 +7,25 @@ import {
   DropdownTrigger,
   Image,
 } from '@nextui-org/react';
-import { fetchPhoneRepairData } from '@services/bookingService';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 const PhoneSelection = ({ bookingData, setBookingData }) => {
-  const [phoneData, setPhoneData] = useState([]);
+  const { phoneData, repairTypeData } = usePhoneData();
+  const brandList = useMemo(
+    () =>
+      Object.keys(phoneData).map((key) => ({
+        id: parseInt(key),
+        name: phoneData[key].brandName,
+      })),
+    [phoneData]
+  );
+
   const [correspondingRepairTypeData, setCorrespondingRepairTypeData] =
     useState(bookingData.repairs[0]?.correspondingRepairTypeData);
-  const [repairTypeData, setRepairTypeData] = useState([]);
   const [selectedRepairType, setSelectedRepairType] = useState(
     bookingData.repairs[0]?.selectedRepairType
   );
 
-  const [brandList, setBrandList] = useState(
-    bookingData.repairs[0]?.brandList || []
-  );
   const [selectedBrand, setSelectedBrand] = useState(
     bookingData.repairs[0]?.selectedBrand
   );
