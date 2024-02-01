@@ -1,5 +1,5 @@
 import Cookies from 'js-cookie';
-import { createContext, useContext, useState } from 'react';
+import { createContext, useContext, useEffect, useState } from 'react';
 
 // Creating a context for authentication
 const AuthContext = createContext(null);
@@ -14,6 +14,11 @@ const AuthContext = createContext(null);
  */
 export const AuthProvider = ({ children }) => {
   const [userToken, setUserToken] = useState(null);
+
+  useEffect(() => {
+    const token = Cookies.get('acc_token');
+    setUserToken(token);
+  }, []);
 
   // Sets the user's token in cookies for persistence and updates the state.
   const login = (token) => {

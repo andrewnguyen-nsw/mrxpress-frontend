@@ -1,24 +1,27 @@
-import { useEffect, useState } from "react";
-import { Button, Divider, Input, Spinner } from "@nextui-org/react";
-import { IconReceipt2, IconDiscount2 } from "@tabler/icons-react";
+import { Button, Divider, Input, Spinner } from '@nextui-org/react';
 import {
   checkPromoCode,
   fetchCheckoutReviewData,
-} from "@services/bookingService";
-import { triggerConfetti } from "@utils/triggerConfetti";
+} from '@services/bookingService';
+import { IconDiscount2, IconReceipt2 } from '@tabler/icons-react';
+import { triggerConfetti } from '@utils/triggerConfetti';
+import { useEffect, useState } from 'react';
 
-const ReviewOrder = ({ bookingData }) => {
+import PaymentDetails from './PaymentDetails';
+
+const ReviewOrder = ({ bookingData, setBookingData }) => {
   const { firstName, lastName, address } = bookingData;
   const [reviewData, setReviewData] = useState();
-  const [promoCode, setPromoCode] = useState("");
+  const [promoCode, setPromoCode] = useState('');
   const [codeStatus, setCodeStatus] = useState({});
 
-  const fetchData = async (bookingData, promoCode = "") => {
+  const fetchData = async (bookingData, promoCode = '') => {
     try {
       const data = await fetchCheckoutReviewData(bookingData, promoCode);
       setReviewData(data);
+      setBookingData({...bookingData, finalTotal: data.finalTotal, finalReduced: data.finalReduced})
     } catch (error) {
-      console.log("Error fetching data: ", error);
+      console.log('Error fetching data: ', error);
     }
   };
 
@@ -29,57 +32,54 @@ const ReviewOrder = ({ bookingData }) => {
   const isPromoCodeValid = async (promoCode) => {
     try {
       const data = await checkPromoCode(promoCode);
-      if (data === "success") {
+      if (data === 'success') {
         await fetchData(bookingData, promoCode);
         setCodeStatus({
           isValid: true,
-          msg: "Promo code applied successfully.",
+          msg: 'Promo code applied successfully.',
         });
         triggerConfetti();
       } else {
         await fetchData(bookingData);
         setCodeStatus({
           isValid: false,
-          msg: "Invalid promo code.",
+          msg: 'Invalid promo code.',
         });
       }
     } catch (error) {
-      console.log("Error checking promo code: ", error);
+      console.log('Error checking promo code: ', error);
     }
   };
 
-  console.log(reviewData);
-
   return (
     <section>
-      <h1 className="text-2xl font-bold mb-4">Review Order</h1>
+      <h1 className='text-2xl font-bold mb-4'>Review Order</h1>
       {!reviewData ? (
-        <Spinner className="pt-3 pl-6" />
+        <Spinner className='pt-3 pl-6' />
       ) : (
-        <div className="grid grid-cols-12 gap-10">
-          <div className="col-span-12 md:col-span-8">
+        <div className='grid grid-cols-12 gap-10'>
+          <div className='col-span-12 md:col-span-8'>
             {reviewData.repairInfo.map((repair, index) => (
-              <>
+              <div key={index}>
                 <div
-                  key={index}
-                  className="flex items-center justify-between mt-3 mb-3"
+                  className='flex items-center justify-between mt-3 mb-3'
                 >
-                  <div className="flex flex-col">
-                    <p className="text-xs font-medium uppercase text-gray-600">
+                  <div className='flex flex-col'>
+                    <p className='text-xs font-medium uppercase text-gray-600'>
                       {repair.phone_name}
                     </p>
-                    <p className="">{repair.repair_name}</p>
+                    <p className=''>{repair.repair_name}</p>
                   </div>
                   <div>${repair.price}</div>
                 </div>
                 <Divider />
-              </>
+              </div>
             ))}
             {reviewData.productList.map((product, index) => (
               <>
                 <div
                   key={index}
-                  className="flex items-center justify-between mt-3 mb-3"
+                  className='flex items-center justify-between mt-3 mb-3'
                 >
                   <p>
                     {product.quantity} x {product.name} (${product.price} each)
@@ -89,43 +89,43 @@ const ReviewOrder = ({ bookingData }) => {
                 <Divider />
               </>
             ))}
-            <div className="flex items-center justify-between mt-3 mb-3">
-              <div className="flex items-center gap-2">
+            <div className='flex items-center justify-between mt-3 mb-3'>
+              <div className='flex items-center gap-2'>
                 <IconReceipt2 stroke={1.5} />
-                <p className="font-medium">Subtotal</p>
+                <p className='font-medium'>Subtotal</p>
               </div>
-              <div className="font-medium">${reviewData?.originTotal}</div>
+              <div className='font-medium'>${reviewData?.originTotal}</div>
             </div>
             {reviewData.repairReduced > 0 && (
-              <div className="flex items-center justify-between mt-5 mb-3">
-                <div className="flex items-center gap-2">
-                  <p className="">Discount</p>
+              <div className='flex items-center justify-between mt-5 mb-3'>
+                <div className='flex items-center gap-2'>
+                  <p className=''>Discount</p>
                 </div>
-                <div className=""> - ${reviewData.repairReduced}</div>
+                <div className=''> - ${reviewData.repairReduced}</div>
               </div>
             )}
-            <div className="flex items-center justify-between mt-5 mb-3">
-              <div className="flex items-center gap-2">
-                <p className="font-semibold text-lg">Total</p>
+            <div className='flex items-center justify-between mt-5 mb-3'>
+              <div className='flex items-center gap-2'>
+                <p className='font-semibold text-lg'>Total</p>
               </div>
-              <div className="font-semibold text-lg bg-[#fbe6e9] px-3 py-2 rounded-md">
+              <div className='font-semibold text-lg bg-[#fbe6e9] px-3 py-2 rounded-md'>
                 ${reviewData?.finalTotal}
               </div>
             </div>
           </div>
-          <div className="col-span-12 md:col-span-4 flex flex-col gap-3">
+          <div className='col-span-12 md:col-span-4 flex flex-col gap-3'>
             <Input
-              placeholder="Promo Code"
-              size="sm"
+              placeholder='Promo Code'
+              size='sm'
               onValueChange={setPromoCode}
               startContent={
-                <IconDiscount2 stroke={1.5} className="text-gray-700" />
+                <IconDiscount2 stroke={1.5} className='text-gray-700' />
               }
               endContent={
                 <Button
-                  className=""
-                  size="sm"
-                  variant="solid"
+                  className=''
+                  size='sm'
+                  variant='solid'
                   onPress={() => isPromoCodeValid(promoCode)}
                 >
                   Apply
@@ -134,7 +134,7 @@ const ReviewOrder = ({ bookingData }) => {
             />
             <p
               className={`text-sm ${
-                codeStatus.isValid ? "text-green-600" : "text-red-800"
+                codeStatus.isValid ? 'text-green-600' : 'text-red-800'
               }`}
             >
               {codeStatus.msg}
@@ -143,8 +143,10 @@ const ReviewOrder = ({ bookingData }) => {
         </div>
       )}
       <div>
-        <p className="text-xl font-bold mt-4 mb-2">Address</p>
-        <p>{bookingData.firstName} {bookingData.lastName}</p>
+        <p className='text-xl font-bold mt-4 mb-2'>Address</p>
+        <p>
+          {bookingData.firstName} {bookingData.lastName}
+        </p>
         <p>{bookingData.address}</p>
       </div>
     </section>

@@ -123,7 +123,7 @@ const PhoneSelection = ({ bookingData, setBookingData }) => {
       ...bookingData,
       repairs: [
         {
-          id: 0,
+          id: 1,
           phoneType: selectedPhone.id,
           repairType: repairId,
           brandList,

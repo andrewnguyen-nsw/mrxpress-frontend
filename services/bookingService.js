@@ -129,3 +129,23 @@ export const checkPromoCode = async (promoCode) => {
     console.error("Error checking promo code:", error);
   }
 };
+
+export const placeOrder = async (bookingData, token) => {
+  try {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/customer/placeOrder`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(bookingData),
+    });
+    if (!response.ok) {
+      throw new Error("Network response error");
+    }
+    const { data } = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error placing order:", error);
+  }
+}

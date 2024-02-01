@@ -2,9 +2,11 @@ import { useState, useEffect } from "react";
 import { fetchAccessoriesData } from "@services/bookingService";
 import { Card, CardHeader, CardBody, Image } from "@nextui-org/react";
 import { IconShoppingCartPlus, IconPlus, IconMinus } from "@tabler/icons-react";
+import { useSnackbar } from "notistack";
 
 const AccessoriesSelection = ({ bookingData, setBookingData }) => {
   const [accessoriesData, setAccessoriesData] = useState([]);
+  const { enqueueSnackbar } = useSnackbar();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -22,8 +24,7 @@ const AccessoriesSelection = ({ bookingData, setBookingData }) => {
     const newCart = { ...bookingData.cart };
     if (newCart[itemId]) {
       if (newCart[itemId] >= quantityInStock) {
-        console.log("Out of stock");
-        // TODO Toast message
+        enqueueSnackbar("Out of stock", { variant: "error" })
       } else {
         newCart[itemId] += 1;
       }
@@ -45,16 +46,16 @@ const AccessoriesSelection = ({ bookingData, setBookingData }) => {
 
   return (
     <section>
-      <h1 className="text-2xl font-bold mb-4">Select Accessories</h1>
+      <h1 className="text-2xl text-center font-semibold mb-4">Select Accessories</h1>
       <div className="grid grid-cols-12 gap-4">
         {accessoriesData.map((item) => (
           <Card
             key={item.id}
-            shadow="sm"
-            className="col-span-12 sm:col-span-6 md:col-span-4 lg:col-span-3 p-4"
+            shadow="none"
+            className="bg-gray-200 col-span-12 sm:col-span-6 md:col-span-4 lg:col-span-3 p-4"
           >
             <CardHeader className="flex-col gap-1">
-              <h3 className="text-gray-800 font-semibold text-large">
+              <h3 className="text-gray-800 font-semibold lg:text-large">
                 {item.name}
               </h3>
               <p className="text-gray-600">${item.price}</p>
@@ -79,7 +80,7 @@ const AccessoriesSelection = ({ bookingData, setBookingData }) => {
                 />
               )}
             </CardHeader>
-            <CardBody>
+            <CardBody className="flex items-center justify-center">
               <Image
                 src={item.image}
                 alt={item.name}
